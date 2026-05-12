@@ -8,11 +8,11 @@ Le projet utilise des données historiques de collisions afin de construire un j
 
 L’objectif est de démontrer un flux complet de projet en science des données, depuis la préparation des données jusqu’à la publication d’une interface web avec GitHub Pages.
 
-Dashboard en ligne :
+## Dashboard en ligne
 
-```text
-https://aidatamodels.github.io/seattle-collision-risk-dashboard/
-```
+Le dashboard est publié avec GitHub Pages et peut être consulté ici :
+
+[Ouvrir le Seattle Collision Risk Dashboard](https://aidatamodels.github.io/seattle-collision-risk-dashboard/)
 
 ## Objectif
 
