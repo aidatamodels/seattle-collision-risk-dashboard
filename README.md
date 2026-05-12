@@ -39,13 +39,15 @@ Dans ce projet, ces éléments sont utilisés comme variables explicatives dans 
 
 Ce projet est donc une démonstration méthodologique de science des données, d’intelligence artificielle appliquée et de visualisation interactive.
 
-## Données utilisées
+## Sources des données
 
-Le projet utilise le fichier `Data-Collisions.csv`, associé aux collisions routières de Seattle.
+Le jeu de données utilisé correspond au jeu de données annuel des collisions routières du Seattle Department of Transportation.
 
-Le script Python peut utiliser une copie locale du fichier. Si le fichier n’est pas présent dans le dossier du projet, il peut tenter de le télécharger automatiquement depuis une source distante.
+Il regroupe des événements enregistrés par la Ville de Seattle et décrit, pour chaque collision, la gravité observée ainsi que plusieurs informations contextuelles utiles à l’analyse, notamment la localisation, les conditions météorologiques, l’état de la route, la luminosité, le type d’adresse et le type de jonction.
 
-Il est toutefois recommandé de conserver une copie locale du fichier pour améliorer la reproductibilité du projet.
+Dans ce projet, ces données sont utilisées afin de construire un jeu analytique destiné à l’entraînement, à la comparaison et à l’évaluation de modèles de classification supervisée.
+
+Pour plus de détails sur le jeu de données, consulter le document de référence :_ [Data Set Summary](https://www.seattle.gov/Documents/Departments/SDOT/GIS/Collisions_OD.pdf).
 
 ## Variables utilisées
 
