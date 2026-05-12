@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seattle Collision Risk — Dashboard ML</title>
+<style>
+:root {
+  --bg:#0b0f16; --panel:#131a25; --panel2:#1b2433; --border:rgba(255,255,255,.10);
+  --text:#edf2f7; --muted:#9aa7b8; --accent:#4ade80; --warn:#fbbf24; --danger:#fb7185;
+  --radius:16px; --shadow:0 18px 45px rgba(0,0,0,.35);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top left,#172033 0,#0b0f16 42%,#070a0f 100%);color:var(--text)}
+header{padding:28px clamp(18px,4vw,52px) 16px;border-bottom:1px solid var(--border)}
+.badge{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(74,222,128,.35);color:var(--accent);background:rgba(74,222,128,.08);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.02em}
+h1{margin:16px 0 8px;font-size:clamp(28px,5vw,54px);line-height:1.02;letter-spacing:-.04em}.subtitle{max-width:900px;color:var(--muted);font-size:16px;line-height:1.65;margin:0 0 8px}
+main{display:grid;grid-template-columns:380px 1fr;gap:22px;padding:24px clamp(18px,4vw,52px) 42px}.card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel{padding:18px}.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800;margin:0 0 14px}.field{margin:0 0 14px}label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin:0 0 7px}select,input[type=file]{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:11px 12px;font-size:14px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.status{padding:12px 14px;border-radius:12px;background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.25);color:#fde68a;font-size:13px;line-height:1.55;margin-bottom:14px}.status.ok{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.28);color:#bbf7d0}.status.err{background:rgba(251,113,133,.09);border-color:rgba(251,113,133,.25);color:#fecdd3}
+.results{display:grid;gap:18px}.hero{display:grid;grid-template-columns:180px 1fr;gap:22px;padding:22px}.dial{height:160px;width:160px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) var(--pct,0%),rgba(255,255,255,.08) 0);position:relative}.dial:after{content:"";position:absolute;inset:14px;background:var(--panel);border-radius:50%;border:1px solid var(--border)}.dial span{z-index:1;font-size:38px;font-weight:900;letter-spacing:-.06em}.hero h2{margin:0 0 8px;font-size:30px;letter-spacing:-.03em}.muted{color:var(--muted);line-height:1.55}.pill{display:inline-flex;align-items:center;border:1px solid var(--border);background:rgba(255,255,255,.04);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted);margin:4px 6px 0 0}.bars{padding:20px}.bar{margin:14px 0}.bar-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:7px;font-size:13px}.track{height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}.fill{height:100%;width:0%;border-radius:999px;transition:width .35s}.c0{background:var(--accent)}.c1{background:var(--warn)}.c2{background:var(--danger)}
+.model{padding:18px}.metrics{width:100%;border-collapse:collapse;font-size:13px}.metrics th,.metrics td{border-bottom:1px solid var(--border);padding:10px;text-align:left}.metrics th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.metrics td.num{text-align:right;font-variant-numeric:tabular-nums}.top5{padding:18px}.top-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.top-card{background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:14px;padding:13px}.rank{font-size:11px;color:var(--muted);font-weight:800}.loc{font-size:13px;font-weight:800;line-height:1.35;margin:6px 0 10px}.risk{font-size:24px;font-weight:900;letter-spacing:-.04em}.small{font-size:12px;color:var(--muted);line-height:1.45}.note{padding:14px 16px;color:var(--muted);font-size:13px;line-height:1.6}.hidden{display:none!important}
+@media(max-width:960px){main{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.top-grid{grid-template-columns:1fr 1fr}.dial{margin:auto}}@media(max-width:560px){.grid2{grid-template-columns:1fr}.top-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="badge">Dashboard alimenté par dashboard_data.json</div>
+  <h1>Seattle Collision Risk</h1>
+  <p class="subtitle">Ce dashboard ne réentraîne pas le modèle dans le navigateur. Il lit un fichier JSON généré par Python après comparaison de trois modèles : régression logistique, forêt aléatoire et Extra Trees.</p>
+</header>
+<main>
+  <aside class="card panel">
+    <div id="loadStatus" class="status">Chargement de <code>dashboard_data.json</code>…</div>
+    <div class="field">
+      <label>Charger le JSON manuellement, si le navigateur bloque l’accès local</label>
+      <input id="jsonFile" type="file" accept="application/json,.json" />
+    </div>
+    <p class="section-title">Scénario</p>
+    <div class="field"><label>Jour</label><select id="jour"></select></div>
+    <div class="field"><label>Météo</label><select id="weather"></select></div>
+    <div class="field"><label>État de la route</label><select id="roadcond"></select></div>
+    <div class="field"><label>Luminosité</label><select id="lightcond"></select></div>
+    <div class="field"><label>Type d’adresse</label><select id="addrtype"></select></div>
+    <div class="field"><label>Type de jonction</label><select id="junctiontype"></select></div>
+    <div class="field"><label>Localisation détaillée</label><select id="location"></select></div>
+    <div class="note">Pour une publication statique sur GitHub Pages, placez <code>index.html</code> et <code>dashboard_data.json</code> dans le même dossier.</div>
+  </aside>
+
+  <section class="results">
+    <div class="card hero">
+      <div id="dial" class="dial" style="--pct:0%"><span id="riskPct">—</span></div>
+      <div>
+        <h2 id="resultTitle">Aucune donnée chargée</h2>
+        <div id="resultMeta" class="muted">Exécutez d’abord le script Python pour produire le fichier JSON.</div>
+        <div id="resultPills"></div>
+      </div>
+    </div>
+
+    <div class="card bars">
+      <p class="section-title">Distribution des probabilités</p>
+      <div class="bar"><div class="bar-head"><span>Classe 0 — Aucune collision observée</span><strong id="p0Text">—</strong></div><div class="track"><div id="p0Fill" class="fill c0"></div></div></div>
+      <div class="bar"><div class="bar-head"><span>Classe 1 — Dommages matériels</span><strong id="p1Text">—</strong></div><div class="track"><div id="p1Fill" class="fill c1"></div></div></div>
+      <div class="bar"><div class="bar-head"><span>Classe 2 — Blessures</span><strong id="p2Text">—</strong></div><div class="track"><div id="p2Fill" class="fill c2"></div></div></div>
+    </div>
+
+    <div class="card top5">
+      <p class="section-title">Top 5 des localisations pour ce scénario</p>
+      <div id="top5Grid" class="top-grid"></div>
+    </div>
+
+    <div class="card model">
+      <p class="section-title">Comparaison des modèles</p>
+      <div id="modelSummary" class="muted">—</div>
+      <table class="metrics" id="metricsTable"></table>
+    </div>
+  </section>
+</main>
+<script>
+let DATA = null;
+
+const els = {
+  status: document.getElementById('loadStatus'),
+  file: document.getElementById('jsonFile'),
+  jour: document.getElementById('jour'), weather: document.getElementById('weather'), roadcond: document.getElementById('roadcond'),
+  lightcond: document.getElementById('lightcond'), addrtype: document.getElementById('addrtype'), junctiontype: document.getElementById('junctiontype'), location: document.getElementById('location'),
+  dial: document.getElementById('dial'), riskPct: document.getElementById('riskPct'), resultTitle: document.getElementById('resultTitle'), resultMeta: document.getElementById('resultMeta'), resultPills: document.getElementById('resultPills'),
+  p0Text: document.getElementById('p0Text'), p1Text: document.getElementById('p1Text'), p2Text: document.getElementById('p2Text'),
+  p0Fill: document.getElementById('p0Fill'), p1Fill: document.getElementById('p1Fill'), p2Fill: document.getElementById('p2Fill'),
+  top5Grid: document.getElementById('top5Grid'), modelSummary: document.getElementById('modelSummary'), metricsTable: document.getElementById('metricsTable')
+};
+
+function pct(v){ return `${(Number(v || 0)*100).toFixed(1)}%`; }
+function key(){ return [els.jour.value, els.weather.value, els.roadcond.value, els.lightcond.value, els.addrtype.value, els.junctiontype.value].join('||'); }
+function setOptions(select, values, mapper = v => ({value:v, label:v})){
+  select.innerHTML = '';
+  values.forEach(v => {
+    const o = mapper(v); const opt = document.createElement('option'); opt.value = o.value; opt.textContent = o.label; select.appendChild(opt);
+  });
+}
+
+function initDashboard(data){
+  DATA = data;
+  const o = data.dashboard.options;
+  setOptions(els.jour, o.jour_semaine);
+  setOptions(els.weather, o.WEATHER);
+  setOptions(els.roadcond, o.ROADCOND);
+  setOptions(els.lightcond, o.LIGHTCOND);
+  setOptions(els.addrtype, o.ADDRTYPE);
+  setOptions(els.junctiontype, o.JUNCTIONTYPE);
+  setOptions(els.location, o.LOCATION, v => ({value:v.id, label:v.label}));
+  ['change'].forEach(evt => document.querySelectorAll('select').forEach(s => s.addEventListener(evt, render)));
+  renderModelSummary();
+  render();
+}
+
+function render(){
+  if(!DATA) return;
+  const entry = DATA.dashboard.prediction_catalog[key()];
+  if(!entry){
+    els.resultTitle.textContent = 'Scénario absent du JSON';
+    els.resultMeta.textContent = 'Réexécutez le script Python avec davantage de valeurs exportées pour couvrir ce scénario.';
+    return;
+  }
+  const loc = entry.locations[els.location.value] || Object.values(entry.locations)[0];
+  els.resultTitle.textContent = loc.interpretation;
+  els.resultMeta.textContent = `${loc.location} · date de scénario : ${loc.incident_date}`;
+  els.resultPills.innerHTML = `
+    <span class="pill">Classe prédite : ${loc.classe_predite}</span>
+    <span class="pill">Blessures si collision : ${pct(loc.p_blessures_si_accident)}</span>
+    <span class="pill">Gravité conditionnelle : ${loc.interpretation_gravite_conditionnelle}</span>`;
+  els.riskPct.textContent = pct(loc.p_accident);
+  els.dial.style.setProperty('--pct', `${Number(loc.p_accident || 0)*100}%`);
+  updateBar('p0', loc.p0); updateBar('p1', loc.p1); updateBar('p2', loc.p2);
+  renderTop5(entry.top5);
+}
+
+function updateBar(prefix, value){
+  els[`${prefix}Text`].textContent = pct(value);
+  els[`${prefix}Fill`].style.width = `${Number(value || 0)*100}%`;
+}
+
+function renderTop5(rows){
+  els.top5Grid.innerHTML = rows.map((r, i) => `
+    <div class="top-card">
+      <div class="rank">#${i+1}</div>
+      <div class="loc">${r.location}</div>
+      <div class="risk">${pct(r.p_accident)}</div>
+      <div class="small">Risque accident</div>
+      <div class="small">Blessures globales : ${pct(r.p_blessures)}</div>
+      <div class="small">Si collision : ${pct(r.p_blessures_si_accident)}</div>
+    </div>`).join('');
+}
+
+function renderModelSummary(){
+  const t = DATA.training;
+  const best = t.best_model;
+  els.modelSummary.innerHTML = `Modèle retenu : <strong>${best.name}</strong>. Critère de sélection : <strong>${t.selection_metric}</strong>. Le notebook/script compare explicitement la régression logistique, la forêt aléatoire et Extra Trees.`;
+  const rows = t.models_compared || [];
+  els.metricsTable.innerHTML = `
+    <thead><tr><th>Modèle</th><th>Balanced accuracy</th><th>F1 macro</th></tr></thead>
+    <tbody>${rows.map(r => `<tr><td>${r.modele}</td><td class="num">${Number(r.balanced_accuracy).toFixed(4)}</td><td class="num">${Number(r.f1_macro).toFixed(4)}</td></tr>`).join('')}</tbody>`;
+}
+
+async function loadDefault(){
+  try{
+    const response = await fetch('dashboard_data.json', {cache:'no-store'});
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    els.status.className = 'status ok';
+    els.status.innerHTML = '<strong>JSON chargé.</strong> Les prédictions affichées proviennent du meilleur modèle entraîné par Python.';
+    initDashboard(data);
+  }catch(err){
+    els.status.className = 'status err';
+    els.status.innerHTML = `Impossible de charger <code>dashboard_data.json</code>. Placez-le dans le même dossier que ce fichier HTML et ouvrez le projet avec <code>python -m http.server 8000</code>, ou chargez le JSON manuellement ci-dessus.`;
+  }
+}
+
+els.file.addEventListener('change', async (e) => {
+  const file = e.target.files?.[0]; if(!file) return;
+  const data = JSON.parse(await file.text());
+  els.status.className = 'status ok';
+  els.status.innerHTML = '<strong>JSON chargé manuellement.</strong>';
+  initDashboard(data);
+});
+
+loadDefault();
+</script>
+</body>
+</html>
