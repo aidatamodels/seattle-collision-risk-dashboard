@@ -39,6 +39,28 @@ Dans ce projet, ces éléments sont utilisés comme variables explicatives dans 
 
 Ce projet est donc une démonstration méthodologique de science des données, d’intelligence artificielle appliquée et de visualisation interactive.
 
+## Mise en situation
+
+Le dashboard peut être utilisé pour simuler un scénario routier précis.
+
+Par exemple, l’utilisateur peut sélectionner les conditions suivantes :
+
+- Jour : lundi ;
+- Météo : temps clair ;
+- État de la route : chaussée sèche ;
+- Luminosité : lumière du jour ;
+- Type d’adresse : intersection ;
+- Type de jonction : intersection ;
+- Localisation : 6TH AVE AND JAMES ST.
+
+La question analysée par le modèle devient alors :
+
+> Si une journée de type lundi présente ces conditions — temps clair, route sèche, lumière du jour, intersection et localisation donnée — quel serait le risque estimé de collision selon les tendances observées dans les données historiques ?
+
+Le dashboard retourne une estimation statistique du risque associé à ce scénario. Il indique notamment la classe prédite, la distribution des probabilités entre les classes et la probabilité de blessures en cas de collision.
+
+Il ne s’agit pas d’une prédiction en temps réel pour une date future précise. Le modèle ne connaît pas les conditions réelles de la semaine prochaine, comme la météo exacte, le trafic, les travaux, les événements ou les comportements des conducteurs. Il estime plutôt le niveau de risque d’un scénario défini par l’utilisateur, à partir des données historiques disponibles.
+
 ## Sources des données
 
 Le jeu de données utilisé correspond au jeu de données annuel des collisions routières du Seattle Department of Transportation.
@@ -72,6 +94,10 @@ Les principales variables utilisées dans le modèle sont les suivantes :
 ## Variable cible
 
 Le problème est formulé comme une classification multiclasse.
+
+Le jeu de données brut contient principalement des collisions observées. Afin de permettre au modèle d’estimer non seulement la gravité d’une collision, mais aussi la probabilité qu’aucune collision ne soit observée dans un scénario donné, le script construit un jeu analytique à partir des données historiques.
+
+Cette construction permet d’intégrer des scénarios sans collision observée, en combinant des localisations, des dates et des conditions contextuelles. Ces scénarios sont représentés par la classe `0`.
 
 Les classes utilisées sont les suivantes :
 
