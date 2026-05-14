@@ -1,190 +1,1316 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Seattle Collision Risk — Dashboard ML</title>
-<style>
-:root {
-  --bg:#0b0f16; --panel:#131a25; --panel2:#1b2433; --border:rgba(255,255,255,.10);
-  --text:#edf2f7; --muted:#9aa7b8; --accent:#4ade80; --warn:#fbbf24; --danger:#fb7185;
-  --radius:16px; --shadow:0 18px 45px rgba(0,0,0,.35);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top left,#172033 0,#0b0f16 42%,#070a0f 100%);color:var(--text)}
-header{padding:28px clamp(18px,4vw,52px) 16px;border-bottom:1px solid var(--border)}
-.badge{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(74,222,128,.35);color:var(--accent);background:rgba(74,222,128,.08);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.02em}
-h1{margin:16px 0 8px;font-size:clamp(28px,5vw,54px);line-height:1.02;letter-spacing:-.04em}.subtitle{max-width:900px;color:var(--muted);font-size:16px;line-height:1.65;margin:0 0 8px}
-main{display:grid;grid-template-columns:380px 1fr;gap:22px;padding:24px clamp(18px,4vw,52px) 42px}.card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-.panel{padding:18px}.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800;margin:0 0 14px}.field{margin:0 0 14px}label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin:0 0 7px}select,input[type=file]{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:11px 12px;font-size:14px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.status{padding:12px 14px;border-radius:12px;background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.25);color:#fde68a;font-size:13px;line-height:1.55;margin-bottom:14px}.status.ok{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.28);color:#bbf7d0}.status.err{background:rgba(251,113,133,.09);border-color:rgba(251,113,133,.25);color:#fecdd3}
-.results{display:grid;gap:18px}.hero{display:grid;grid-template-columns:180px 1fr;gap:22px;padding:22px}.dial{height:160px;width:160px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) var(--pct,0%),rgba(255,255,255,.08) 0);position:relative}.dial:after{content:"";position:absolute;inset:14px;background:var(--panel);border-radius:50%;border:1px solid var(--border)}.dial span{z-index:1;font-size:38px;font-weight:900;letter-spacing:-.06em}.hero h2{margin:0 0 8px;font-size:30px;letter-spacing:-.03em}.muted{color:var(--muted);line-height:1.55}.pill{display:inline-flex;align-items:center;border:1px solid var(--border);background:rgba(255,255,255,.04);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted);margin:4px 6px 0 0}.bars{padding:20px}.bar{margin:14px 0}.bar-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:7px;font-size:13px}.track{height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}.fill{height:100%;width:0%;border-radius:999px;transition:width .35s}.c0{background:var(--accent)}.c1{background:var(--warn)}.c2{background:var(--danger)}
-.model{padding:18px}.metrics{width:100%;border-collapse:collapse;font-size:13px}.metrics th,.metrics td{border-bottom:1px solid var(--border);padding:10px;text-align:left}.metrics th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.metrics td.num{text-align:right;font-variant-numeric:tabular-nums}.top5{padding:18px}.top-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.top-card{background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:14px;padding:13px}.rank{font-size:11px;color:var(--muted);font-weight:800}.loc{font-size:13px;font-weight:800;line-height:1.35;margin:6px 0 10px}.risk{font-size:24px;font-weight:900;letter-spacing:-.04em}.small{font-size:12px;color:var(--muted);line-height:1.45}.note{padding:14px 16px;color:var(--muted);font-size:13px;line-height:1.6}.hidden{display:none!important}
-@media(max-width:960px){main{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.top-grid{grid-template-columns:1fr 1fr}.dial{margin:auto}}@media(max-width:560px){.grid2{grid-template-columns:1fr}.top-grid{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Seattle Collision Risk Dashboard</title>
+
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-2: #edf3fb;
+      --surface-3: #e4edf7;
+      --text: #172033;
+      --muted: #5f6f85;
+      --muted-2: #8795a8;
+      --border: #d8e1ee;
+
+      --green: #16a34a;
+      --green-soft: rgba(22, 163, 74, 0.12);
+      --blue: #2563eb;
+      --blue-soft: rgba(37, 99, 235, 0.12);
+      --yellow: #f59e0b;
+      --yellow-soft: rgba(245, 158, 11, 0.14);
+      --red: #e11d48;
+      --red-soft: rgba(225, 29, 72, 0.12);
+
+      --shadow: 0 18px 42px rgba(25, 37, 64, 0.12);
+      --shadow-soft: 0 10px 26px rgba(25, 37, 64, 0.10);
+
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+
+      --sidebar: 380px;
+      --header: 72px;
+
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body.dark-theme {
+      --bg: #0b0f16;
+      --surface: #131a25;
+      --surface-2: #1b2433;
+      --surface-3: #222e40;
+      --text: #edf2f7;
+      --muted: #9aa7b8;
+      --muted-2: #738197;
+      --border: rgba(255,255,255,0.10);
+
+      --green: #4ade80;
+      --green-soft: rgba(74, 222, 128, 0.11);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.13);
+      --red: #fb7185;
+      --red-soft: rgba(251, 113, 133, 0.12);
+
+      --shadow: 0 18px 45px rgba(0,0,0,0.35);
+      --shadow-soft: 0 10px 28px rgba(0,0,0,0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 34%),
+        radial-gradient(circle at top right, rgba(22, 163, 74, 0.10), transparent 28%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    select,
+    input {
+      font-family: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: var(--header) 1fr;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: var(--header);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 clamp(16px, 3vw, 34px);
+      background: rgba(244, 247, 251, 0.90);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+
+    body.dark-theme header {
+      background: rgba(11, 15, 22, 0.92);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      color: #ffffff;
+      font-weight: 950;
+      box-shadow: var(--shadow-soft);
+      flex: 0 0 auto;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      margin-top: 3px;
+      font-size: 12px;
+      font-weight: 650;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 158, 11, 0.30);
+      background: var(--yellow-soft);
+      color: var(--yellow);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status-pill.ok {
+      border-color: rgba(22, 163, 74, 0.34);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .status-pill.err {
+      border-color: rgba(225, 29, 72, 0.34);
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .icon-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--blue);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px clamp(14px, 3vw, 34px) 28px;
+      min-width: 0;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .sidebar {
+      min-width: 0;
+    }
+
+    .panel {
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 13px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--muted-2);
+      font-weight: 900;
+    }
+
+    .section-title::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--blue);
+      box-shadow: 0 0 14px rgba(37, 99, 235, 0.45);
+    }
+
+    .status-box {
+      padding: 12px 13px;
+      border-radius: 14px;
+      background: var(--yellow-soft);
+      border: 1px solid rgba(245, 158, 11, 0.26);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .status-box.ok {
+      background: var(--green-soft);
+      border-color: rgba(22, 163, 74, 0.28);
+    }
+
+    .status-box.err {
+      background: var(--red-soft);
+      border-color: rgba(225, 29, 72, 0.28);
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    select,
+    input[type="file"] {
+      width: 100%;
+      min-height: 42px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 10px 11px;
+      outline: none;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    select:focus,
+    input[type="file"]:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px var(--blue-soft);
+    }
+
+    .scenario-note {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 15px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .results {
+      min-width: 0;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 24px;
+      padding: 22px;
+      align-items: center;
+    }
+
+    .dial-wrap {
+      display: grid;
+      place-items: center;
+    }
+
+    .dial {
+      height: 174px;
+      width: 174px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        conic-gradient(var(--risk-color, var(--green)) var(--pct, 0%), var(--surface-3) 0);
+      position: relative;
+      box-shadow: inset 0 0 0 1px var(--border), var(--shadow-soft);
+    }
+
+    .dial::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      background: var(--surface);
+      border-radius: 50%;
+      border: 1px solid var(--border);
+    }
+
+    .dial span {
+      z-index: 1;
+      font-size: 39px;
+      font-weight: 950;
+      letter-spacing: -0.06em;
+    }
+
+    .risk-label {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.02;
+      letter-spacing: -0.06em;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(22px, 3vw, 32px);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .grid-results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .bars,
+    .model,
+    .top5,
+    .scenario-card {
+      padding: 18px;
+    }
+
+    .bar {
+      margin: 15px 0;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+      font-size: 13px;
+    }
+
+    .bar-head span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .bar-head strong {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .track {
+      height: 11px;
+      background: var(--surface-3);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    .c0 { background: var(--green); }
+    .c1 { background: var(--yellow); }
+    .c2 { background: var(--red); }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .top-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px;
+      min-width: 0;
+    }
+
+    .rank {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .loc {
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.35;
+      margin: 7px 0 10px;
+      min-height: 36px;
+    }
+
+    .risk {
+      font-size: 25px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+
+    .metrics {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .metrics th,
+    .metrics td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      text-align: left;
+    }
+
+    .metrics th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .metrics td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+    }
+
+    .mobile-actions {
+      display: none;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .secondary-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 14px;
+      min-height: 42px;
+      padding: 10px 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .help-panel {
+      position: fixed;
+      top: 0;
+      right: -470px;
+      width: 450px;
+      max-width: calc(100vw - 28px);
+      height: 100vh;
+      z-index: 1600;
+      background: var(--surface);
+      color: var(--text);
+      border-left: 1px solid var(--border);
+      box-shadow: -12px 0 34px rgba(0,0,0,0.20);
+      transition: right 0.26s ease;
+      overflow-y: auto;
+    }
+
+    .help-panel.open {
+      right: 0;
+    }
+
+    .help-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .help-header h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.04em;
+    }
+
+    .help-close {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .help-content {
+      padding: 20px;
+    }
+
+    .help-content section {
+      border-left: 3px solid var(--blue);
+      padding-left: 13px;
+      margin-bottom: 26px;
+    }
+
+    .help-content h3 {
+      margin: 0 0 9px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .help-content p,
+    .help-content li {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .help-content ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 850;
+      font-size: 12px;
+      margin: 2px 4px 2px 0;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1500;
+      background: rgba(0,0,0,0.28);
+      display: none;
+    }
+
+    .overlay.open {
+      display: block;
+    }
+
+    @media (max-width: 1180px) {
+      :root {
+        --sidebar: 340px;
+      }
+
+      .top-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .top-card:first-child {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 960px) {
+      body {
+        overflow: auto;
+      }
+
+      header {
+        height: auto;
+        min-height: var(--header);
+        align-items: flex-start;
+        padding: 12px 14px;
+      }
+
+      .brand {
+        align-items: flex-start;
+      }
+
+      .brand-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 13px;
+      }
+
+      .brand-title {
+        white-space: normal;
+        font-size: 15px;
+        line-height: 1.2;
+      }
+
+      .brand-subtitle {
+        display: none;
+      }
+
+      .status-pill {
+        display: none;
+      }
+
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+      }
+
+      main {
+        display: block;
+        padding: 12px;
+      }
+
+      .sidebar {
+        margin-bottom: 14px;
+      }
+
+      .scenario-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .field {
+        margin-bottom: 0;
+      }
+
+      .field.wide {
+        grid-column: 1 / -1;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+
+      .dial {
+        width: 164px;
+        height: 164px;
+      }
+
+      .dial-wrap {
+        justify-content: start;
+      }
+
+      .grid-results {
+        grid-template-columns: 1fr;
+      }
+
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .top-card:first-child {
+        grid-column: auto;
+      }
+
+      .metrics {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .mobile-actions {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .header-actions {
+        gap: 7px;
+      }
+
+      .icon-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+      }
+
+      .scenario-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .bars,
+      .model,
+      .top5,
+      .scenario-card,
+      .panel {
+        padding: 14px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .hero h2 {
+        font-size: 22px;
+      }
+
+      .dial {
+        width: 150px;
+        height: 150px;
+      }
+
+      .dial span {
+        font-size: 34px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <div class="badge">Dashboard alimenté par dashboard_data.json</div>
-  <h1>Seattle Collision Risk</h1>
-  <p class="subtitle">Ce dashboard ne réentraîne pas le modèle dans le navigateur. Il lit un fichier JSON généré par Python après comparaison de trois modèles : régression logistique, forêt aléatoire et Extra Trees.</p>
-</header>
-<main>
-  <aside class="card panel">
-    <div id="loadStatus" class="status">Chargement de <code>dashboard_data.json</code>…</div>
-    <div class="field">
-      <label>Charger le JSON manuellement, si le navigateur bloque l’accès local</label>
-      <input id="jsonFile" type="file" accept="application/json,.json" />
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">SR</div>
+        <div>
+          <div class="brand-title">Seattle Collision Risk Dashboard</div>
+          <div class="brand-subtitle">Données historiques · classification supervisée · risque routier</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-pill" id="topStatus">Chargement du JSON...</div>
+        <button class="icon-btn" id="themeToggle" title="Changer le thème">☾</button>
+        <button class="icon-btn" id="helpToggle" title="À propos du dashboard">?</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="sidebar">
+        <div class="card panel">
+          <div id="loadStatus" class="status-box">
+            Chargement de <code>dashboard_data.json</code>…
+          </div>
+
+          <div class="field wide">
+            <label for="jsonFile">Charger le JSON manuellement, si nécessaire</label>
+            <input id="jsonFile" type="file" accept="application/json,.json" />
+          </div>
+
+          <div class="scenario-note">
+            Les résultats sont mis à jour automatiquement lorsque vous modifiez un scénario.
+          </div>
+        </div>
+
+        <div class="card panel">
+          <p class="section-title">Scénario</p>
+
+          <div class="scenario-fields">
+            <div class="field">
+              <label for="jour">Jour</label>
+              <select id="jour"></select>
+            </div>
+
+            <div class="field">
+              <label for="weather">Météo</label>
+              <select id="weather"></select>
+            </div>
+
+            <div class="field">
+              <label for="roadcond">État de la route</label>
+              <select id="roadcond"></select>
+            </div>
+
+            <div class="field">
+              <label for="lightcond">Luminosité</label>
+              <select id="lightcond"></select>
+            </div>
+
+            <div class="field">
+              <label for="addrtype">Type d’adresse</label>
+              <select id="addrtype"></select>
+            </div>
+
+            <div class="field">
+              <label for="junctiontype">Type de jonction</label>
+              <select id="junctiontype"></select>
+            </div>
+
+            <div class="field wide">
+              <label for="location">Localisation détaillée</label>
+              <select id="location"></select>
+            </div>
+          </div>
+
+          <div class="mobile-actions">
+            <button class="secondary-btn" id="scrollResultsBtn">Voir le résultat</button>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <p class="section-title">Lecture rapide</p>
+          <div class="muted">
+            Le dashboard estime le risque associé à un scénario défini par l’utilisateur.
+            Il ne s’agit pas d’une prédiction en temps réel pour une date future précise.
+          </div>
+        </div>
+      </aside>
+
+      <section class="results" id="resultsSection">
+        <div class="card hero">
+          <div class="dial-wrap">
+            <div id="dial" class="dial" style="--pct:0%">
+              <span id="riskPct">—</span>
+            </div>
+            <div class="risk-label">Risque estimé</div>
+          </div>
+
+          <div>
+            <h1>Analyse du scénario</h1>
+            <h2 id="resultTitle">Aucune donnée chargée</h2>
+            <div id="resultMeta" class="muted">
+              Exécutez d’abord le script Python pour produire le fichier JSON.
+            </div>
+            <div id="resultPills" class="pill-row"></div>
+          </div>
+        </div>
+
+        <div class="grid-results">
+          <div class="card bars">
+            <p class="section-title">Distribution des probabilités</p>
+
+            <div class="bar">
+              <div class="bar-head">
+                <span>Classe 0 — Aucune collision observée</span>
+                <strong id="p0Text">—</strong>
+              </div>
+              <div class="track">
+                <div id="p0Fill" class="fill c0"></div>
+              </div>
+            </div>
+
+            <div class="bar">
+              <div class="bar-head">
+                <span>Classe 1 — Dommages matériels</span>
+                <strong id="p1Text">—</strong>
+              </div>
+              <div class="track">
+                <div id="p1Fill" class="fill c1"></div>
+              </div>
+            </div>
+
+            <div class="bar">
+              <div class="bar-head">
+                <span>Classe 2 — Blessures</span>
+                <strong id="p2Text">—</strong>
+              </div>
+              <div class="track">
+                <div id="p2Fill" class="fill c2"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card scenario-card">
+            <p class="section-title">Mise en situation</p>
+            <div class="muted" id="scenarioNarrative">
+              Sélectionnez un scénario pour afficher une lecture métier.
+            </div>
+          </div>
+        </div>
+
+        <div class="card top5">
+          <p class="section-title">Top 5 des localisations pour ce scénario</p>
+          <div id="top5Grid" class="top-grid"></div>
+        </div>
+
+        <div class="card model">
+          <p class="section-title">Comparaison des modèles</p>
+          <div id="modelSummary" class="muted">—</div>
+          <table class="metrics" id="metricsTable"></table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="help-panel" id="helpPanel">
+    <div class="help-header">
+      <h2>À propos du dashboard</h2>
+      <button class="help-close" id="closeHelp" title="Fermer">×</button>
     </div>
-    <p class="section-title">Scénario</p>
-    <div class="field"><label>Jour</label><select id="jour"></select></div>
-    <div class="field"><label>Météo</label><select id="weather"></select></div>
-    <div class="field"><label>État de la route</label><select id="roadcond"></select></div>
-    <div class="field"><label>Luminosité</label><select id="lightcond"></select></div>
-    <div class="field"><label>Type d’adresse</label><select id="addrtype"></select></div>
-    <div class="field"><label>Type de jonction</label><select id="junctiontype"></select></div>
-    <div class="field"><label>Localisation détaillée</label><select id="location"></select></div>
-    <div class="note">Pour une publication statique sur GitHub Pages, placez <code>index.html</code> et <code>dashboard_data.json</code> dans le même dossier.</div>
+
+    <div class="help-content">
+      <section>
+        <h3>Objectif</h3>
+        <p>
+          Ce dashboard estime le risque associé à différents scénarios routiers à Seattle,
+          à partir de variables telles que la localisation, la météo, l’état de la route,
+          la luminosité, le type d’adresse, le type de jonction et le jour de la semaine.
+        </p>
+      </section>
+
+      <section>
+        <h3>Mise en situation</h3>
+        <p>
+          L’utilisateur peut simuler une situation précise, par exemple :
+          lundi, temps clair, chaussée sèche, lumière du jour, intersection et localisation donnée.
+          Le modèle estime alors le niveau de risque associé à ce scénario selon les tendances historiques.
+        </p>
+      </section>
+
+      <section>
+        <h3>Interprétation</h3>
+        <p>
+          Le résultat affiché est une estimation statistique, et non une prédiction certaine.
+          Le modèle ne connaît pas la météo réelle de la semaine prochaine, les travaux,
+          le trafic, les événements locaux ou les comportements des conducteurs.
+        </p>
+      </section>
+
+      <section>
+        <h3>Classes utilisées</h3>
+        <ul>
+          <li>Classe 0 : aucune collision observée.</li>
+          <li>Classe 1 : collision avec dommages matériels.</li>
+          <li>Classe 2 : collision avec blessures.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Modèles comparés</h3>
+        <p>
+          Le script Python compare plusieurs modèles de classification supervisée :
+          régression logistique équilibrée, forêt aléatoire et Extra Trees.
+          Le navigateur lit uniquement les résultats contenus dans <code>dashboard_data.json</code>.
+        </p>
+        <span class="tag">Python</span>
+        <span class="tag">Scikit-learn</span>
+        <span class="tag">Classification</span>
+        <span class="tag">GitHub Pages</span>
+      </section>
+    </div>
   </aside>
 
-  <section class="results">
-    <div class="card hero">
-      <div id="dial" class="dial" style="--pct:0%"><span id="riskPct">—</span></div>
-      <div>
-        <h2 id="resultTitle">Aucune donnée chargée</h2>
-        <div id="resultMeta" class="muted">Exécutez d’abord le script Python pour produire le fichier JSON.</div>
-        <div id="resultPills"></div>
-      </div>
-    </div>
+  <script>
+    let DATA = null;
 
-    <div class="card bars">
-      <p class="section-title">Distribution des probabilités</p>
-      <div class="bar"><div class="bar-head"><span>Classe 0 — Aucune collision observée</span><strong id="p0Text">—</strong></div><div class="track"><div id="p0Fill" class="fill c0"></div></div></div>
-      <div class="bar"><div class="bar-head"><span>Classe 1 — Dommages matériels</span><strong id="p1Text">—</strong></div><div class="track"><div id="p1Fill" class="fill c1"></div></div></div>
-      <div class="bar"><div class="bar-head"><span>Classe 2 — Blessures</span><strong id="p2Text">—</strong></div><div class="track"><div id="p2Fill" class="fill c2"></div></div></div>
-    </div>
+    const els = {
+      topStatus: document.getElementById("topStatus"),
+      status: document.getElementById("loadStatus"),
+      file: document.getElementById("jsonFile"),
 
-    <div class="card top5">
-      <p class="section-title">Top 5 des localisations pour ce scénario</p>
-      <div id="top5Grid" class="top-grid"></div>
-    </div>
+      jour: document.getElementById("jour"),
+      weather: document.getElementById("weather"),
+      roadcond: document.getElementById("roadcond"),
+      lightcond: document.getElementById("lightcond"),
+      addrtype: document.getElementById("addrtype"),
+      junctiontype: document.getElementById("junctiontype"),
+      location: document.getElementById("location"),
 
-    <div class="card model">
-      <p class="section-title">Comparaison des modèles</p>
-      <div id="modelSummary" class="muted">—</div>
-      <table class="metrics" id="metricsTable"></table>
-    </div>
-  </section>
-</main>
-<script>
-let DATA = null;
+      dial: document.getElementById("dial"),
+      riskPct: document.getElementById("riskPct"),
+      resultTitle: document.getElementById("resultTitle"),
+      resultMeta: document.getElementById("resultMeta"),
+      resultPills: document.getElementById("resultPills"),
+      scenarioNarrative: document.getElementById("scenarioNarrative"),
 
-const els = {
-  status: document.getElementById('loadStatus'),
-  file: document.getElementById('jsonFile'),
-  jour: document.getElementById('jour'), weather: document.getElementById('weather'), roadcond: document.getElementById('roadcond'),
-  lightcond: document.getElementById('lightcond'), addrtype: document.getElementById('addrtype'), junctiontype: document.getElementById('junctiontype'), location: document.getElementById('location'),
-  dial: document.getElementById('dial'), riskPct: document.getElementById('riskPct'), resultTitle: document.getElementById('resultTitle'), resultMeta: document.getElementById('resultMeta'), resultPills: document.getElementById('resultPills'),
-  p0Text: document.getElementById('p0Text'), p1Text: document.getElementById('p1Text'), p2Text: document.getElementById('p2Text'),
-  p0Fill: document.getElementById('p0Fill'), p1Fill: document.getElementById('p1Fill'), p2Fill: document.getElementById('p2Fill'),
-  top5Grid: document.getElementById('top5Grid'), modelSummary: document.getElementById('modelSummary'), metricsTable: document.getElementById('metricsTable')
-};
+      p0Text: document.getElementById("p0Text"),
+      p1Text: document.getElementById("p1Text"),
+      p2Text: document.getElementById("p2Text"),
+      p0Fill: document.getElementById("p0Fill"),
+      p1Fill: document.getElementById("p1Fill"),
+      p2Fill: document.getElementById("p2Fill"),
 
-function pct(v){ return `${(Number(v || 0)*100).toFixed(1)}%`; }
-function key(){ return [els.jour.value, els.weather.value, els.roadcond.value, els.lightcond.value, els.addrtype.value, els.junctiontype.value].join('||'); }
-function setOptions(select, values, mapper = v => ({value:v, label:v})){
-  select.innerHTML = '';
-  values.forEach(v => {
-    const o = mapper(v); const opt = document.createElement('option'); opt.value = o.value; opt.textContent = o.label; select.appendChild(opt);
-  });
-}
+      top5Grid: document.getElementById("top5Grid"),
+      modelSummary: document.getElementById("modelSummary"),
+      metricsTable: document.getElementById("metricsTable"),
 
-function initDashboard(data){
-  DATA = data;
-  const o = data.dashboard.options;
-  setOptions(els.jour, o.jour_semaine);
-  setOptions(els.weather, o.WEATHER);
-  setOptions(els.roadcond, o.ROADCOND);
-  setOptions(els.lightcond, o.LIGHTCOND);
-  setOptions(els.addrtype, o.ADDRTYPE);
-  setOptions(els.junctiontype, o.JUNCTIONTYPE);
-  setOptions(els.location, o.LOCATION, v => ({value:v.id, label:v.label}));
-  ['change'].forEach(evt => document.querySelectorAll('select').forEach(s => s.addEventListener(evt, render)));
-  renderModelSummary();
-  render();
-}
+      themeToggle: document.getElementById("themeToggle"),
+      helpToggle: document.getElementById("helpToggle"),
+      helpPanel: document.getElementById("helpPanel"),
+      closeHelp: document.getElementById("closeHelp"),
+      overlay: document.getElementById("overlay"),
+      scrollResultsBtn: document.getElementById("scrollResultsBtn"),
+      resultsSection: document.getElementById("resultsSection")
+    };
 
-function render(){
-  if(!DATA) return;
-  const entry = DATA.dashboard.prediction_catalog[key()];
-  if(!entry){
-    els.resultTitle.textContent = 'Scénario absent du JSON';
-    els.resultMeta.textContent = 'Réexécutez le script Python avec davantage de valeurs exportées pour couvrir ce scénario.';
-    return;
-  }
-  const loc = entry.locations[els.location.value] || Object.values(entry.locations)[0];
-  els.resultTitle.textContent = loc.interpretation;
-  els.resultMeta.textContent = `${loc.location} · date de scénario : ${loc.incident_date}`;
-  els.resultPills.innerHTML = `
-    <span class="pill">Classe prédite : ${loc.classe_predite}</span>
-    <span class="pill">Blessures si collision : ${pct(loc.p_blessures_si_accident)}</span>
-    <span class="pill">Gravité conditionnelle : ${loc.interpretation_gravite_conditionnelle}</span>`;
-  els.riskPct.textContent = pct(loc.p_accident);
-  els.dial.style.setProperty('--pct', `${Number(loc.p_accident || 0)*100}%`);
-  updateBar('p0', loc.p0); updateBar('p1', loc.p1); updateBar('p2', loc.p2);
-  renderTop5(entry.top5);
-}
+    function pct(value) {
+      return `${(Number(value || 0) * 100).toFixed(1)}%`;
+    }
 
-function updateBar(prefix, value){
-  els[`${prefix}Text`].textContent = pct(value);
-  els[`${prefix}Fill`].style.width = `${Number(value || 0)*100}%`;
-}
+    function key() {
+      return [
+        els.jour.value,
+        els.weather.value,
+        els.roadcond.value,
+        els.lightcond.value,
+        els.addrtype.value,
+        els.junctiontype.value
+      ].join("||");
+    }
 
-function renderTop5(rows){
-  els.top5Grid.innerHTML = rows.map((r, i) => `
-    <div class="top-card">
-      <div class="rank">#${i+1}</div>
-      <div class="loc">${r.location}</div>
-      <div class="risk">${pct(r.p_accident)}</div>
-      <div class="small">Risque accident</div>
-      <div class="small">Blessures globales : ${pct(r.p_blessures)}</div>
-      <div class="small">Si collision : ${pct(r.p_blessures_si_accident)}</div>
-    </div>`).join('');
-}
+    function setOptions(select, values, mapper = value => ({ value, label: value })) {
+      select.innerHTML = "";
 
-function renderModelSummary(){
-  const t = DATA.training;
-  const best = t.best_model;
-  els.modelSummary.innerHTML = `Modèle retenu : <strong>${best.name}</strong>. Critère de sélection : <strong>${t.selection_metric}</strong>. Le notebook/script compare explicitement la régression logistique, la forêt aléatoire et Extra Trees.`;
-  const rows = t.models_compared || [];
-  els.metricsTable.innerHTML = `
-    <thead><tr><th>Modèle</th><th>Balanced accuracy</th><th>F1 macro</th></tr></thead>
-    <tbody>${rows.map(r => `<tr><td>${r.modele}</td><td class="num">${Number(r.balanced_accuracy).toFixed(4)}</td><td class="num">${Number(r.f1_macro).toFixed(4)}</td></tr>`).join('')}</tbody>`;
-}
+      values.forEach(value => {
+        const optionData = mapper(value);
+        const option = document.createElement("option");
+        option.value = optionData.value;
+        option.textContent = optionData.label;
+        select.appendChild(option);
+      });
+    }
 
-async function loadDefault(){
-  try{
-    const response = await fetch('dashboard_data.json', {cache:'no-store'});
-    if(!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    els.status.className = 'status ok';
-    els.status.innerHTML = '<strong>JSON chargé.</strong> Les prédictions affichées proviennent du meilleur modèle entraîné par Python.';
-    initDashboard(data);
-  }catch(err){
-    els.status.className = 'status err';
-    els.status.innerHTML = `Impossible de charger <code>dashboard_data.json</code>. Placez-le dans le même dossier que ce fichier HTML et ouvrez le projet avec <code>python -m http.server 8000</code>, ou chargez le JSON manuellement ci-dessus.`;
-  }
-}
+    function riskColor(value) {
+      const risk = Number(value || 0);
 
-els.file.addEventListener('change', async (e) => {
-  const file = e.target.files?.[0]; if(!file) return;
-  const data = JSON.parse(await file.text());
-  els.status.className = 'status ok';
-  els.status.innerHTML = '<strong>JSON chargé manuellement.</strong>';
-  initDashboard(data);
-});
+      if (risk >= 0.55) return "var(--red)";
+      if (risk >= 0.30) return "var(--yellow)";
+      return "var(--green)";
+    }
 
-loadDefault();
-</script>
+    function updateStatus(type, html) {
+      els.status.className = `status-box ${type}`;
+      els.status.innerHTML = html;
+
+      els.topStatus.className = `status-pill ${type}`;
+      els.topStatus.textContent = type === "ok"
+        ? "JSON chargé"
+        : type === "err"
+          ? "JSON non chargé"
+          : "Chargement du JSON...";
+    }
+
+    function initDashboard(data) {
+      DATA = data;
+
+      const options = data.dashboard.options;
+
+      setOptions(els.jour, options.jour_semaine);
+      setOptions(els.weather, options.WEATHER);
+      setOptions(els.roadcond, options.ROADCOND);
+      setOptions(els.lightcond, options.LIGHTCOND);
+      setOptions(els.addrtype, options.ADDRTYPE);
+      setOptions(els.junctiontype, options.JUNCTIONTYPE);
+      setOptions(els.location, options.LOCATION, value => ({
+        value: value.id,
+        label: value.label
+      }));
+
+      document.querySelectorAll("select").forEach(select => {
+        select.addEventListener("change", render);
+      });
+
+      renderModelSummary();
+      render();
+    }
+
+    function render() {
+      if (!DATA) return;
+
+      const entry = DATA.dashboard.prediction_catalog[key()];
+
+      if (!entry) {
+        els.resultTitle.textContent = "Scénario absent du JSON";
+        els.resultMeta.textContent = "Réexécutez le script Python avec davantage de valeurs exportées pour couvrir ce scénario.";
+        els.riskPct.textContent = "—";
+        els.dial.style.setProperty("--pct", "0%");
+        els.resultPills.innerHTML = "";
+        return;
+      }
+
+      const loc = entry.locations[els.location.value] || Object.values(entry.locations)[0];
+
+      const pAccident = Number(loc.p_accident || 0);
+      const pAccidentPct = pAccident * 100;
+
+      els.resultTitle.textContent = loc.interpretation;
+      els.resultMeta.textContent = `${loc.location} · date de scénario : ${loc.incident_date}`;
+
+      els.resultPills.innerHTML = `
+        <span class="pill">Classe prédite : ${loc.classe_predite}</span>
+        <span class="pill">Blessures si collision : ${pct(loc.p_blessures_si_accident)}</span>
+        <span class="pill">Gravité conditionnelle : ${loc.interpretation_gravite_conditionnelle}</span>
+      `;
+
+      els.riskPct.textContent = pct(loc.p_accident);
+      els.dial.style.setProperty("--pct", `${pAccidentPct}%`);
+      els.dial.style.setProperty("--risk-color", riskColor(loc.p_accident));
+
+      updateBar("p0", loc.p0);
+      updateBar("p1", loc.p1);
+      updateBar("p2", loc.p2);
+
+      renderTop5(entry.top5);
+      renderScenarioNarrative(loc);
+    }
+
+    function updateBar(prefix, value) {
+      els[`${prefix}Text`].textContent = pct(value);
+      els[`${prefix}Fill`].style.width = `${Number(value || 0) * 100}%`;
+    }
+
+    function renderTop5(rows) {
+      els.top5Grid.innerHTML = rows.map((row, index) => `
+        <div class="top-card">
+          <div class="rank">#${index + 1}</div>
+          <div class="loc">${row.location}</div>
+          <div class="risk">${pct(row.p_accident)}</div>
+          <div class="small">Risque accident</div>
+          <div class="small">Blessures globales : ${pct(row.p_blessures)}</div>
+          <div class="small">Si collision : ${pct(row.p_blessures_si_accident)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderScenarioNarrative(loc) {
+      els.scenarioNarrative.innerHTML = `
+        Pour ce scénario — <strong>${els.jour.value}</strong>, météo <strong>${els.weather.value}</strong>,
+        route <strong>${els.roadcond.value}</strong>, luminosité <strong>${els.lightcond.value}</strong>,
+        type d’adresse <strong>${els.addrtype.value}</strong> et localisation
+        <strong>${loc.location}</strong> — le modèle estime un risque de collision de
+        <strong>${pct(loc.p_accident)}</strong>.
+        <br><br>
+        Cette valeur doit être comprise comme une estimation fondée sur les tendances historiques,
+        et non comme une prédiction certaine d’un événement futur.
+      `;
+    }
+
+    function renderModelSummary() {
+      const training = DATA.training;
+      const best = training.best_model;
+      const rows = training.models_compared || [];
+
+      els.modelSummary.innerHTML = `
+        Modèle retenu : <strong>${best.name}</strong>.
+        Critère de sélection : <strong>${training.selection_metric}</strong>.
+        Le script Python compare explicitement la régression logistique, la forêt aléatoire et Extra Trees.
+      `;
+
+      els.metricsTable.innerHTML = `
+        <thead>
+          <tr>
+            <th>Modèle</th>
+            <th>Balanced accuracy</th>
+            <th>F1 macro</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(row => `
+            <tr>
+              <td>${row.modele}</td>
+              <td class="num">${Number(row.balanced_accuracy).toFixed(4)}</td>
+              <td class="num">${Number(row.f1_macro).toFixed(4)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
+    }
+
+    async function loadDefault() {
+      try {
+        const response = await fetch("dashboard_data.json", { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        updateStatus("ok", "<strong>JSON chargé.</strong> Les prédictions affichées proviennent du meilleur modèle entraîné par Python.");
+        initDashboard(data);
+
+      } catch (error) {
+        updateStatus(
+          "err",
+          "Impossible de charger <code>dashboard_data.json</code>. Placez-le dans le même dossier que ce fichier HTML et ouvrez le projet avec <code>python -m http.server 8000</code>, ou chargez le JSON manuellement ci-dessus."
+        );
+        console.error(error);
+      }
+    }
+
+    els.file.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+
+      if (!file) return;
+
+      const data = JSON.parse(await file.text());
+
+      updateStatus("ok", "<strong>JSON chargé manuellement.</strong>");
+      initDashboard(data);
+    });
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark-theme");
+
+      const dark = document.body.classList.contains("dark-theme");
+      els.themeToggle.textContent = dark ? "☀" : "☾";
+    }
+
+    function openHelp() {
+      els.helpPanel.classList.add("open");
+      els.overlay.classList.add("open");
+    }
+
+    function closeHelp() {
+      els.helpPanel.classList.remove("open");
+      els.overlay.classList.remove("open");
+    }
+
+    els.themeToggle.addEventListener("click", toggleTheme);
+    els.helpToggle.addEventListener("click", openHelp);
+    els.closeHelp.addEventListener("click", closeHelp);
+    els.overlay.addEventListener("click", closeHelp);
+
+    els.scrollResultsBtn.addEventListener("click", () => {
+      els.resultsSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
+
+    loadDefault();
+  </script>
 </body>
 </html>
